@@ -116,3 +116,39 @@ export async function measureRuntime(callback: () => Promise<void>) {
         }${milliseconds < 10 ? "0" : ""}${milliseconds}`
     );
 }
+
+export function isAlphanumeric(str: string) {
+    return /^[a-z0-9]+$/i.test(str);
+}
+
+export class Point {
+    x: number;
+    y: number;
+
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
+
+    stringify(): string {
+        return `${this.x}:${this.y}`;
+    }
+
+    isInBounds<T>(matrix: T[][]): boolean {
+        return (this.x >= 0 && this.x < matrix.length && this.y >= 0 && this.y < matrix[0].length);
+    }
+
+    isValid(): boolean {
+        return (this.x != Infinity && this.y != Infinity);
+    }
+}
+
+export function newInvalidPoint(): Point {
+    return new Point(Infinity, Infinity);
+}
+
+export function printMatrix(lines: string[][]) {
+    for (const line of lines) {
+        console.log(line.toString().replace(/,/g, ''));
+    }
+}
