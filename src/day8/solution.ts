@@ -56,7 +56,6 @@ function connectPoints(antinodes: Set<string>, antennas: Point[], lines: string[
             // one point will get the -
             // one point will get the +
             // left and right matter here and up and down
-            //
 
             let a1: Point = newInvalidPoint();
             let a2: Point = newInvalidPoint();
@@ -112,7 +111,19 @@ function connectPoints(antinodes: Set<string>, antennas: Point[], lines: string[
                 }
             }
         }
+    }
+}
 
+function connectPointsV2(antinodes: Set<string>, antennas: Point[], lines: string[][]) {
+    for (let i = 0; i < antennas.length; i++) {
+        for (let j = i + 1; j < antennas.length; j++) {
+            const x1: number = antennas[i].x;
+            const y1: number = antennas[i].y;
+            const x2: number = antennas[j].x;
+            const y2: number = antennas[j].y;
+
+            getFullLinePoints(new Point(x1, y1), new Point(x2, y2), lines.length, lines[0].length, antinodes);
+        }
     }
 }
 
@@ -135,4 +146,61 @@ async function part1() {
     console.log(antinodes.size);
 }
 
-measureRuntime(part1);
+async function part2() {
+    const lines: string[][] = await readFileLinesV2(path.join(__dirname, "input.txt"));
+    const antennas: Map<string, Point[]> = getAntennasByFrequency(lines);
+    const antinodes: Set<string> = new Set();
+
+    // console.log(antennas);
+
+    let progress: MyProgressBar = new MyProgressBar(antennas.size);
+
+    for (const [_, points] of antennas.entries()) {
+        connectPointsV2(antinodes, points, lines);
+        progress.Tick();
+    }
+
+    printMatrix(lines);
+
+    console.log(antinodes.size);
+}
+
+
+function getFullLinePoints(
+    p1: Point,
+    p2: Point,
+    rows: number,
+    cols: number,
+    antinodes: Set<string>
+
+) {
+    // Calculate the slope and direction
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
+    const divisor = gcd(Math.abs(dx), Math.abs(dy));
+    const stepX = dx / divisor;
+    const stepY = dy / divisor;
+
+    // Extend line in both directions until out of bounds
+    let currentX = p1.x;
+    let currentY = p1.y;
+
+    // Extend line in the forward direction
+    while (currentX >= 0 && currentX < rows && currentY >= 0 && currentY < cols) {
+        antinodes.add(new Point(Math.round(currentX), Math.round(currentY)).stringify());
+        currentX += stepX;
+        currentY += stepY;
+    }
+
+    // Reset to the starting point and go in the reverse direction
+    currentX = p1.x;
+    currentY = p1.y;
+    while (currentX >= 0 && currentX < rows && currentY >= 0 && currentY < cols) {
+        antinodes.add(new Point(Math.round(currentX), Math.round(currentY)).stringify());
+        currentX -= stepX;
+        currentY -= stepY;
+    }
+}
+
+measureRuntime(part2);
