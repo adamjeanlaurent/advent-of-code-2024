@@ -116,4 +116,3 @@ export async function measureRuntime(callback: () => Promise<void>) {
         }${milliseconds < 10 ? "0" : ""}${milliseconds}`
     );
 }
-

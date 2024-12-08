@@ -18,7 +18,7 @@ function getAllOperatorCombos(count: number, combos: string[], currentStr: strin
         getAllOperatorCombos(count - 1, combos, currentStr + '$', p2);
 }
 
-function tryCombo(operators: string[], nums: number[]): number {
+function tryCombo(operators: string[], nums: number[], goal: number): number {
     let res: number = nums.shift()!;
 
     while (operators.length > 0 && nums.length > 0) {
@@ -31,6 +31,9 @@ function tryCombo(operators: string[], nums: number[]): number {
             res = res + num;
         else if (op === '$')
             res = Number(`${res}${num}`);
+
+        if (res > goal)
+            break;
     }
 
     return res;
@@ -55,7 +58,7 @@ async function part1() {
         getAllOperatorCombos(vals.length - 1, combos, '', false);
 
         for (const combo of combos) {
-            const calc: number = tryCombo(combo.split(''), structuredClone(vals));
+            const calc: number = tryCombo(combo.split(''), structuredClone(vals), goal);
             // console.log(`goal: ${goal} | nums: ${nums} | ops: ${combo} | calc: ${calc}`);
             if (calc === goal) {
                 res += goal;
@@ -89,7 +92,7 @@ async function part2() {
         getAllOperatorCombos(vals.length - 1, combos, '', true);
 
         for (const combo of combos) {
-            const calc: number = tryCombo(combo.split(''), structuredClone(vals));
+            const calc: number = tryCombo(combo.split(''), structuredClone(vals), goal);
             // console.log(`goal: ${goal} | nums: ${nums} | ops: ${combo} | calc: ${calc}`);
             if (calc === goal) {
                 res += goal;
