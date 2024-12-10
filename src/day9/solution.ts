@@ -69,6 +69,85 @@ function compressDiskMap(expandedDiskMap: number[]) {
     }
 }
 
+function compressDiskMapV2(expandedDiskMap: number[]) {
+    let left: number = 0;
+    let right: number = expandedDiskMap.length - 1;
+
+    while (left < right) {
+        // move left to start of free space
+        // while (expandedDiskMap[left] !== -1) {
+        //     left++;
+        // }
+
+        // move right to a number
+        while (expandedDiskMap[right] === -1) {
+            right--;
+        }
+
+        // re-check bounds just in case
+        if (left >= right) {
+            break;
+        }
+
+        // get size of free space
+        // let freeSpaceSize: number = 0;
+        // let temp = left;
+        // while (temp < expandedDiskMap.length && expandedDiskMap[temp] === -1) {
+        //     temp++;
+        //     freeSpaceSize++;
+        // }
+
+        // get size of file
+        let fileSize: number = 0;
+        let temp = right;
+        while (temp >= 0 && expandedDiskMap[temp] === expandedDiskMap[right]) {
+            temp--;
+            fileSize++;
+        }
+
+        // find left most free space large enough for file
+        temp = left;
+        let couldMoveFile: boolean = false;
+
+        while (left < expandedDiskMap.length && expandedDiskMap[left] !== -1) {
+            left++;
+
+            let temp: number = left;
+            let freeSpaceSize: number = 0;
+
+            while (temp < expandedDiskMap.length && expandedDiskMap[temp] === -1) {
+                temp++;
+                freeSpaceSize++;
+            }
+
+
+            // if there is space to move whole file, move it
+            if (fileSize <= freeSpaceSize) {
+                console.log(`could move ${expandedDiskMap[right]}`);
+                console.log(fileSize, freeSpaceSize);
+                for (let i = 0; i < fileSize; i++) {
+                    swapElements(expandedDiskMap, left, right);
+                    left++;
+                    right--;
+                }
+                couldMoveFile = true;
+                break;
+            }
+
+        }
+
+        // if there isn't enough space, move right to next file block
+        if (!couldMoveFile) {
+            console.log(`could NOT move ${expandedDiskMap[right]}`);
+            console.log(fileSize);
+            right = right - fileSize;
+        }
+
+        left = 0;
+    }
+
+}
+
 function sumCompressedDiskMap(compressedDiskMap: number[]): number {
     let i: number = 0;
     let checksum: number = 0;
@@ -88,7 +167,19 @@ async function part1() {
     const compactDiskMap: number[] = expandedDiskMap;
     const checksum: number = sumCompressedDiskMap(compactDiskMap);
     console.log(checksum);
-
 }
 
-measureRuntime(part1);
+async function part2() {
+    const diskMap: string = await readFileWhole(path.join(__dirname, "debug.txt"));
+    const expandedDiskMap: number[] = expandDiskMap(diskMap);
+    console.log(expandedDiskMap.join('').replace(/-1/g, '.'));
+    compressDiskMapV2(expandedDiskMap);
+    const compactDiskMap: number[] = expandedDiskMap;
+    console.log(compactDiskMap.join('').replace(/-1/g, '.'));
+    const checksum: number = sumCompressedDiskMap(compactDiskMap);
+    console.log(checksum);
+}
+
+
+part2();
+
