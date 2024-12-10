@@ -152,3 +152,13 @@ export function printMatrix(lines: string[][]) {
         console.log(line.toString().replace(/,/g, ''));
     }
 }
+
+export function stringMatrixToNumberMatrix(stringArray: string[][]): number[][] {
+    return stringArray.map(row =>
+        row.map(value => Number(value))
+    );
+}
+
+export function stringifyCell(row: number, col: number) {
+    return `${row}:${col}`;
+}
