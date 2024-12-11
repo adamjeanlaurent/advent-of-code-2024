@@ -20,7 +20,7 @@ const dirs: [number, number][] = [
     [1, 0],
 ];
 
-function dfs(tMap: number[][], curRow: number, curCol: number, valToFind: number, seen: Set<string>): number {
+function dfs(tMap: number[][], curRow: number, curCol: number, valToFind: number): number {
     let score: number = 0;
 
     for (const dir of dirs) {
@@ -28,13 +28,12 @@ function dfs(tMap: number[][], curRow: number, curCol: number, valToFind: number
         const newCol: number = curCol + dir[1];
 
         if (newRow >= 0 && newRow < tMap.length && newCol >= 0 && newCol < tMap[0].length) {
-            if (tMap[newRow][newCol] === valToFind && !seen.has(stringifyCell(newRow, newCol))) {
-                seen.add(stringifyCell(newRow, newCol));
+            if (tMap[newRow][newCol] === valToFind) {
                 if (valToFind === 9) {
                     score++;
                 }
                 else {
-                    score += dfs(tMap, newRow, newCol, valToFind + 1, seen);
+                    score += dfs(tMap, newRow, newCol, valToFind + 1);
                 }
             }
         }
@@ -56,7 +55,7 @@ async function part1() {
             pb.Tick();
             if (tMap[row][col] === 0) {
                 const seen: Set<string> = new Set();
-                let goodTrails: number = dfs(tMap, row, col, 1, seen);
+                let goodTrails: number = dfs(tMap, row, col, 1);
                 score += goodTrails;
             }
         }
