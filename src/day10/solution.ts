@@ -1,5 +1,5 @@
 import path from "path";
-import { measureRuntime, MyProgressBar, readFileLinesV2, stringifyCell, stringMatrixToNumberMatrix } from "../helpers";
+import { measureRuntime, MyProgressBar, Point, readFileLinesV2, stringifyCell, stringMatrixToNumberMatrix } from "../helpers";
 
 // input is topographic map
 // each spot indicates a height (0-9)
@@ -11,36 +11,22 @@ import { measureRuntime, MyProgressBar, readFileLinesV2, stringifyCell, stringMa
 // take in a hiking trail
 // return score of all trailheads summed
 
-
-
-const dirs: [number, number][] = [
-    [0, -1],
-    [0, 1],
-    [-1, 0],
-    [1, 0],
-];
-
-function dfs(tMap: number[][], curRow: number, curCol: number, valToFind: number): number {
+function dfs(tMap: number[][], curPoint: Point, valToFind: number): number {
     let score: number = 0;
 
-    for (const dir of dirs) {
-        const newRow: number = curRow + dir[0];
-        const newCol: number = curCol + dir[1];
-
-        if (newRow >= 0 && newRow < tMap.length && newCol >= 0 && newCol < tMap[0].length) {
-            if (tMap[newRow][newCol] === valToFind) {
-                if (valToFind === 9) {
-                    score++;
-                }
-                else {
-                    score += dfs(tMap, newRow, newCol, valToFind + 1);
-                }
+    for (const nextPoint of curPoint.inBoundCrossNeighbours(tMap)) {
+        if (tMap[nextPoint.row][nextPoint.col] === valToFind) {
+            if (valToFind === 9) {
+                score++;
+            }
+            else {
+                score += dfs(tMap, nextPoint, valToFind + 1);
             }
         }
     }
-
     return score;
 }
+
 
 async function part1() {
     let lines: string[][] = await readFileLinesV2(path.join(__dirname, "input.txt"));
@@ -55,7 +41,7 @@ async function part1() {
             pb.Tick();
             if (tMap[row][col] === 0) {
                 const seen: Set<string> = new Set();
-                let goodTrails: number = dfs(tMap, row, col, 1);
+                let goodTrails: number = dfs(tMap, new Point(row, col), 1);
                 score += goodTrails;
             }
         }

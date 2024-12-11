@@ -122,24 +122,82 @@ export function isAlphanumeric(str: string) {
 }
 
 export class Point {
-    x: number;
-    y: number;
+    row: number;
+    col: number;
 
     constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
+        this.row = x;
+        this.col = y;
     }
 
     stringify(): string {
-        return `${this.x}:${this.y}`;
+        return `${this.row}:${this.col}`;
     }
 
     isInBounds<T>(matrix: T[][]): boolean {
-        return (this.x >= 0 && this.x < matrix.length && this.y >= 0 && this.y < matrix[0].length);
+        return (this.row >= 0 && this.row < matrix.length && this.col >= 0 && this.col < matrix[0].length);
     }
 
     isValid(): boolean {
-        return (this.x != Infinity && this.y != Infinity);
+        return (this.row != Infinity && this.col != Infinity);
+    }
+
+    left(): Point {
+        return new Point(this.row, this.col - 1);
+    }
+
+    right(): Point {
+        return new Point(this.row, this.col + 1);
+    }
+
+    up(): Point {
+        return new Point(this.row - 1, this.col);
+    }
+
+    down(): Point {
+        return new Point(this.row + 1, this.col);
+    }
+
+    diagonalUpLeft(): Point {
+        return new Point(this.row - 1, this.col - 1);
+    }
+
+    diagonalUpRight(): Point {
+        return new Point(this.row - 1, this.col + 1);
+    }
+
+    diagonalDownLeft(): Point {
+        return new Point(this.row + 1, this.col - 1);
+    }
+
+    diagonalDownRight(): Point {
+        return new Point(this.row + 1, this.col + 1);
+    }
+
+    inBoundCrossNeighbours<T>(matrix: T[][]): Point[] {
+        let points: Point[] = [
+            this.up(),
+            this.down(),
+            this.left(),
+            this.right()
+        ];
+
+        return points.filter(point => point.isInBounds(matrix));
+    }
+
+    inBoundCrossAndDiagonalNeighbours<T>(matrix: T[][]): Point[] {
+        let points: Point[] = [
+            this.up(),
+            this.down(),
+            this.left(),
+            this.right(),
+            this.diagonalUpLeft(),
+            this.diagonalUpRight(),
+            this.diagonalDownLeft(),
+            this.diagonalDownRight(),
+        ];
+
+        return points.filter(point => point.isInBounds(matrix));
     }
 }
 
@@ -160,5 +218,5 @@ export function stringMatrixToNumberMatrix(stringArray: string[][]): number[][] 
 }
 
 export function stringifyCell(row: number, col: number) {
-    return `${row}:${col}`;
+    return `${row}:${col}`
 }
